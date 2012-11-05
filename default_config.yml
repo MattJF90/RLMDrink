@@ -1,0 +1,84 @@
+drinks:
+  rum:
+    id: 16
+    unit: shot
+    drunkenness: 7
+  tequila:
+    id: 32
+    unit: shot
+    drunkenness: 10
+  vodka:
+    id: 64
+    unit: shot
+    drunkenness: 6
+  beer:
+    id: 8192
+    unit: pint
+    drunkenness: 5
+states:
+  buzzed:
+    startsAt: 25
+    endsAt: 45
+    death: false
+    effects:
+      JUMP:
+        duration: 30
+        amplitude: 1
+      SPEED:
+        duration: 30
+        amplitude: 1
+  tipsy:
+    startsAt: 45
+    endsAt: 75
+    death: false
+    effects:
+      WEAKNESS:
+        duration: 60
+        amplitude: 1
+      DAMAGE_RESISTANCE:
+        duration: 60
+        amplitude: 1
+      SLOW_DIGGING:
+        duration: 50
+        amplitude: 1
+  drunk:
+    startsAt: 75
+    endsAt: 105
+    death: false
+    effects:
+      SLOW:
+        duration: 120
+        amplitude: 2
+      CONFUSION:
+        duration: 120
+        amplitude: 1
+      WEAKNESS:
+        duration: 120
+        amplitude: 3
+      SLOW_DIGGING:
+        duration: 120
+        amplitude: 4
+  wasted:
+    startsAt: 105
+    endsAt: 145
+    death: false
+    effects:
+      BLINDNESS:
+        duration: 180
+        amplitude: 3
+      SLOW:
+        duration: 180
+        amplitude: 4
+      CONFUSION:
+        duration: 180
+        amplitude: 2
+      WEAKNESS:
+        duration: 300
+        amplitude: 3
+      SLOW_DIGGING:
+        duration: 300
+        amplitude: 5
+  poisoning:
+    startsAt: 145
+    endsAt: 1000
+    death: true

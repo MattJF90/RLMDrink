@@ -123,7 +123,8 @@ public class RLMDrink extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onPlayerInteract (PlayerInteractEvent event) {
 		Player player = event.getPlayer();
-		if (event.getAction() == Action.RIGHT_CLICK_AIR) {
+		if (event.getAction() == Action.RIGHT_CLICK_AIR
+			|| event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			try {
 				MaterialData item = event.getItem().getData();
 				if (item.getItemType() == Material.POTION) {

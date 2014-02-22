@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
@@ -22,42 +23,34 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.rlminecraft.RLMDrink.Exceptions.BadConfigException;
+import com.rlminecraft.RLMDrink.listener.ConsumptionListener;
 
 
 
-public class RLMDrink extends JavaPlugin implements Listener {
+public class RLMDrink extends JavaPlugin {
 	
 	Logger console;
 	boolean debugging = false;
 	int tps = 20;
-	public Map<String, Integer> drunkenness;
-	List<Drink> drinks;
-	List<State> states;
+	public YamlConfiguration config;
+	public DrunkMap drunkMap;
 	
 	public void onEnable() {
 		console = this.getLogger();
-		getServer().getPluginManager().registerEvents(this, this);
-		drinks = new LinkedList<Drink>();
-		states = new LinkedList<State>();
-		drunkenness = new HashMap<String, Integer>();
+		drunkMap = new DrunkMap();
 		Debug("Player drunk map initialized");
 		Debug("Loading from config");
-		try {
-			if (!loadData("plugins/RLMDrink/config.yml")) {
-				RLMDrink.this.getServer().getPluginManager().disablePlugin(RLMDrink.this);
-			}
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			RLMDrink.this.getServer().getPluginManager().disablePlugin(RLMDrink.this);
-		}
+		this.saveDefaultConfig();
+		config = (YamlConfiguration) this.getConfig();
+		verifyConfig();
 		// Schedule sober timer
-		this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
+		this.getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
 			public void run() {
 				reduceDrunkenness();
 			}
 		}, (20*20), (30*20));
-		console.info("RLMDrinks has been enabled!");
+		// Schedule listeners
+		this.getServer().getPluginManager().registerEvents(new ConsumptionListener(this), this);
 	}
 	
 	public void onDisable() {
@@ -65,56 +58,17 @@ public class RLMDrink extends JavaPlugin implements Listener {
 	}
 	
 	
-	/* YAML Loader */
-	
-	private boolean loadData (String filename) throws FileNotFoundException {
-		// Load data from config.yml
-		File file = new File(filename);
-		YamlConfiguration yml = YamlConfiguration.loadConfiguration(file);
-		Map<String, Object> config = yml.getValues(false);
-		
-		// Check that required sections are present
-		if (config.containsKey("drinks")) {
-			Debug("Key \"drinks\" found in config");
-			Map<String,Object> tempDrinks = ((MemorySection) config.get("drinks")).getValues(false);
-			for (int i = 0; i < tempDrinks.size(); i++) {
-				String tempName = tempDrinks.keySet().toArray()[i].toString();
-				MemorySection tempData = (MemorySection) tempDrinks.get(tempName);
-				try {
-					Drink drink = new Drink(tempName,tempData);
-					drinks.add(drink);
-				} catch (BadConfigException e) {
-					console.warning("Drink \"" + tempName + "\" could not be added properly! Reason: " + e.getCause());
-				} finally {
-					// do nothing
-				}
-			}
-		} else {
-			console.severe("The drinks section is missing from config.yml.");
-			return false;
+	public void verifyConfig () {
+		if (!config.contains("drinks")) {
+			console.severe("Configuration error: \"drinks\" section missing!");
+			this.getPluginLoader().disablePlugin(this);
+			return;
 		}
-		if (config.containsKey("states")) {
-			Debug("Key \"states\" found in config");
-			Map<String,Object> tempStates = ((MemorySection) config.get("states")).getValues(false);
-			for (int i = 0; i < tempStates.size(); i++) {
-				String tempName = tempStates.keySet().toArray()[i].toString();
-				MemorySection tempData = (MemorySection) tempStates.get(tempName);
-				try {
-					Debug("Attempting to create new state...");
-					State state = new State(tempName,tempData);
-					Debug("Success! Adding state to global state list...");
-					states.add(state);
-					Debug ("success!");
-				} catch (BadConfigException e) {
-					// do nothing
-				}
-			}
-		} else {
-			console.severe("The states section is missing from config.yml.");
-			return false;
+		if (!config.contains("states")) {
+			console.severe("Configuration error: \"states\" section missing!");
+			this.getPluginLoader().disablePlugin(this);
+			return;
 		}
-		
-		return true;
 	}
 	
 	
@@ -168,23 +122,6 @@ public class RLMDrink extends JavaPlugin implements Listener {
 			}
 		}
 		if (drinkName == "") return;
-		
-		/*
-		// Decrease potion inventory by 1
-		PlayerInventory inv = player.getInventory();
-		int held = inv.getHeldItemSlot();
-		ItemStack item = inv.getItem(held);
-		int itemAmount = item.getAmount();
-		if (itemAmount > 1) {
-			Debug("More than one item! Removing one item from inventory slot.");
-			item.setAmount(item.getAmount() - 1);
-			inv.setItem(held, item);
-		} else {
-			Debug("Only one item! Clearing inventory slot.");
-			inv.clear(held);
-		}
-		player.setItemInHand(inv.getItem(held));
-		*/
 		
 		player.sendMessage("You drank a " + drinkUnit + " of " + drinkName + ".");
 		

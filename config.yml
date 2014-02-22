@@ -1,0 +1,92 @@
+#--------------------#
+#     RLMDrinks      #
+# Configuration File #
+#--------------------#
+
+
+
+#--------
+# DRINKS
+#
+# Contains the list of drinks, including their name,
+# how drunk they get you, and what each unit is
+# called (e.g. a shot, pint, etc).
+#
+drinks:
+  16:
+    name: rum
+    unit: shot
+    drunkenness: 7
+  
+  32:
+    name: tequila
+    unit: shot
+    drunkenness: 10
+    
+  64:
+    name: vodka
+    unit: shot
+    drunkenness: 6
+  
+  8192:
+    name: beer
+    unit: pint
+    drunkenness: 5
+
+
+
+#--------
+# STATES
+#
+# Contains the list of states of inebriation, including
+# their name, their effects, and how drunk you have to
+# be to enter the state.
+#
+states:
+  25:
+    name: buzzed
+    effects:
+      - name: JUMP
+        amplitude: 1
+      - name: SPEED
+        amplitude: 1
+  
+  45:
+    name: tipsy
+    effects:
+      - name: WEAKNESS
+        amplitude: 1
+      - name: DAMAGE_RESISTANCE
+        amplitude: 1
+      - name: SLOW_DIGGING
+        amplitude: 1
+  
+  75:
+    name: drunk
+    effects:
+      - name: SLOW
+        amplitude: 2
+      - name: CONFUSION
+        amplitude: 1
+      - name: WEAKNESS
+        amplitude: 3
+      - name: SLOW_DIGGING
+        amplitude: 4
+  
+  105:
+    name: wasted
+    effects:
+      - name: BLINDNESS
+        amplitude: 3
+      - name: SLOW
+        amplitude: 4
+      - name: CONFUSION
+        amplitude: 2
+      - name: WEAKNESS
+        amplitude: 3
+      - name: SLOW_DIGGING
+        amplitude: 5
+  
+  145:
+    name: poisoning
+    death: true
